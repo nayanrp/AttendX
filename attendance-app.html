@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AttendX</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <section id="login-page">
+    <form class="login-card" id="loginForm">
+      <div class="login-logo">
+        <div class="logo-icon">A</div>
+        <div class="logo-text">Attend<span>X</span></div>
+      </div>
+      <div class="login-heading">Welcome back</div>
+      <div class="login-sub">Sign in to your college portal</div>
+      <div class="auth-panel active" id="signinPanel">
+        <div class="form-group">
+          <label class="form-label" for="loginId">College ID or Email</label>
+          <input class="form-input" id="loginId" placeholder="e.g. 1BM22CS045 or FAC2019018" autocomplete="username">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="loginPass">Password</label>
+          <div class="pass-wrap"><input class="form-input" id="loginPass" type="password" placeholder="Enter your password" autocomplete="current-password"><button class="pass-eye" id="loginPassEye" type="button"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
+        </div>
+        <button class="login-btn" id="loginBtn" type="submit">Sign In</button>
+        <div class="login-hint">Demo student: 1BM22CS045<br>Demo faculty: FAC2019018<br>Password: demo123</div>
+        <div class="login-hint">Don't have an account? <button class="auth-link" id="createTab" type="button">Sign up</button></div>
+      </div>
+
+      <div class="auth-panel" id="createPanel">
+        <div class="section-head" style="margin-bottom:1rem">
+          <div class="section-title">Create Account</div>
+          <button class="section-link" id="signinTab" type="button">Back to sign in</button>
+        </div>
+        <input type="hidden" id="createRole" value="student">
+        <div class="form-grid">
+          <div class="form-group"><label class="form-label" for="createName">Full Name <span class="req">*</span></label><input class="form-input" id="createName" placeholder="Min 3 characters"></div>
+          <div class="form-group"><label class="form-label" for="createId">College ID <span class="req">*</span></label><input class="form-input" id="createId" placeholder="Roll no / Faculty ID"></div>
+        </div>
+        <div class="form-grid">
+          <div class="form-group"><label class="form-label" for="createEmail">Email <span class="req">*</span></label><input class="form-input" id="createEmail" type="email" placeholder="college email"></div>
+          <div class="form-group"><label class="form-label" for="createPassword">Password <span class="req">*</span></label><div class="pass-wrap"><input class="form-input" id="createPassword" type="password" placeholder="Min 8, upper, number, special"><button class="pass-eye" id="createPassEye" type="button"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
+        </div>
+        <div class="form-grid">
+          <div class="form-group"><label class="form-label" for="createPhone">Phone <span class="req">*</span></label><input class="form-input" id="createPhone" placeholder="+91 XXXXX XXXXX"></div>
+          <div class="form-group"><label class="form-label" for="createPhoto">Photo URL</label><input class="form-input" id="createPhoto" placeholder="optional profile pic url"></div>
+        </div>
+        <div class="form-group"><label class="form-label" for="createAddress">Address <span class="req">*</span></label><input class="form-input" id="createAddress" placeholder="Full address (min 10 characters)"></div>
+
+        <div class="create-fields active" id="studentCreateFields">
+          <div class="form-grid">
+            <div class="form-group"><label class="form-label" for="createDepartment">Department <span class="req">*</span></label><input class="form-input" id="createDepartment" placeholder="CSE"></div>
+            <div class="form-group"><label class="form-label" for="createSection">Semester / Section <span class="req">*</span></label><input class="form-input" id="createSection" placeholder="Sem 2 / B"></div>
+          </div>
+          <div class="form-grid">
+            <div class="form-group"><label class="form-label" for="createParent">Parent / Guardian <span class="req">*</span></label><input class="form-input" id="createParent" placeholder="guardian name"></div>
+            <div class="form-group"><label class="form-label" for="createParentPhone">Guardian Number <span class="req">*</span></label><input class="form-input" id="createParentPhone" placeholder="+91 XXXXX XXXXX"></div>
+          </div>
+        </div>
+
+
+        <button class="login-btn" id="createAccountBtn" type="button">Create Account</button>
+        <div class="login-hint"><span class="req">*</span> Required fields. For now this saves locally.</div>
+      </div>
+      <div class="login-error" id="loginError"></div>
+    </form>
+  </section>
+
+  <section class="app student-app" id="studentApp">
+    <header class="topbar">
+      <div class="topbar-logo">Attend<span>X</span></div>
+      <div class="topbar-right">
+        <span class="clock" id="studentClock"></span>
+        <div class="notif-wrap">
+          <button class="notif-btn" id="studentNotifBtn" type="button"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg><span class="notif-dot" id="studentNotifDot"></span></button>
+          <div class="notif-panel" id="studentNotifPanel">
+            <div class="notif-panel-head"><span class="notif-panel-title">Notifications</span><button class="notif-clear-btn" id="studentNotifClear" type="button">Clear all</button></div>
+            <div class="notif-panel-list" id="studentNotifList"><div class="notif-empty">No notifications yet</div></div>
+          </div>
+        </div>
+        <div class="avatar" id="studentAvatar"><img src="https://i.pravatar.cc/120?u=nayan-k-student" alt="Nayan K" onerror="this.remove();this.parentElement.textContent='NK';"></div>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <section class="tab-section active" id="sHome">
+        <div class="greeting-card student">
+          <div class="greeting-name" id="studentGreetingName">Good morning, Nayan</div>
+          <div class="greeting-sub">Semester 2 Â· CSE Section B</div>
+          <div class="greeting-meta">
+            <div class="greeting-meta-item">4 classes today</div>
+            <div class="greeting-meta-item">1BM22CS045</div>
+          </div>
+        </div>
+        <div class="stats-row" id="studentStats"></div>
+        <div class="section-head">
+          <div class="section-title">Today's Schedule</div>
+          <button class="section-link" type="button" data-stab="sTimetable">See all</button>
+        </div>
+        <div class="timetable" id="studentToday"></div>
+      </section>
+
+      <section class="tab-section" id="sTimetable">
+        <div class="section-head">
+          <div class="section-title">Full Timetable</div>
+          <div class="login-hint" style="margin:0">Sem 2 Â· 2026</div>
+        </div>
+        <div class="timetable" id="studentTimetable"></div>
+      </section>
+
+      <section class="tab-section" id="sAttendance">
+        <div class="section-head">
+          <div class="section-title">My Attendance</div>
+          <div class="login-hint" style="margin:0">Semester 2</div>
+        </div>
+        <div class="att-list" id="studentAttendance"></div>
+      </section>
+
+      <section class="tab-section" id="sProfile">
+        <div id="studentProfileContent"></div>
+        <button class="signout-btn" type="button" data-logout>Sign out</button>
+      </section>
+    </main>
+
+    <nav class="bottom-nav">
+      <button class="nav-item active" type="button" data-stab="sHome"><span class="nav-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12L12 3l9 9"/><path d="M5 10v10a1 1 0 001 1h3v-5h6v5h3a1 1 0 001-1V10"/></svg></span>Home</button>
+      <button class="nav-item" type="button" data-stab="sTimetable"><span class="nav-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>Timetable</button>
+      <button class="nav-item" type="button" data-stab="sAttendance"><span class="nav-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="14" width="4" height="7" rx="1"/><rect x="10" y="9" width="4" height="12" rx="1"/><rect x="16" y="4" width="4" height="17" rx="1"/></svg></span>Attendance</button>
+      <button class="nav-item" type="button" data-stab="sProfile"><span class="nav-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 10-16 0"/></svg></span>Profile</button>
+    </nav>
+  </section>
+
+  <section class="app faculty-app" id="facultyApp">
+    <header class="topbar">
+      <div class="topbar-logo">Attend<span>X</span></div>
+      <div class="topbar-right">
+        <span class="clock" id="facultyClock"></span>
+        <div class="notif-wrap">
+          <button class="notif-btn" id="facultyNotifBtn" type="button"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg><span class="notif-dot" id="facultyNotifDot"></span></button>
+          <div class="notif-panel" id="facultyNotifPanel">
+            <div class="notif-panel-head"><span class="notif-panel-title">Notifications</span><button class="notif-clear-btn" id="facultyNotifClear" type="button">Clear all</button></div>
+            <div class="notif-panel-list" id="facultyNotifList"><div class="notif-empty">No notifications yet</div></div>
+          </div>
+        </div>
+        <div class="avatar faculty" id="facultyAvatar"><img src="https://i.pravatar.cc/120?u=sunita-reddy-faculty" alt="Prof. Sunita Reddy" onerror="this.remove();this.parentElement.textContent='SR';"></div>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <section class="tab-section active" id="fHome">
+        <div class="greeting-card faculty">
+          <div class="greeting-name" id="facultyGreetingName">Good morning, Prof. Reddy</div>
+          <div class="greeting-sub">Applied Mathematics · Section B</div>
+          <div class="greeting-meta">
+            <div class="greeting-meta-item">3 lectures today</div>
+            <div class="greeting-meta-item">62 students</div>
+          </div>
+        </div>
+
+        <div class="punch-card">
+          <div class="punch-header">
+            <div class="punch-title">Today's Attendance</div>
+            <div class="punch-date" id="facultyDate"></div>
+          </div>
+          <div class="punch-row">
+            <div class="punch-box" id="punchInBox"><div class="punch-label">Punch In</div><div class="punch-time" id="punchInTime">--:--</div></div>
+            <div class="punch-box" id="punchOutBox"><div class="punch-label">Punch Out</div><div class="punch-time" id="punchOutTime">--:--</div></div>
+          </div>
+          <button class="punch-btn" id="punchButton" type="button">Punch In</button>
+        </div>
+
+        <div class="stats-row" id="facultyStats"></div>
+        <div class="section-head"><div class="section-title">Today's Classes</div></div>
+        <div class="class-list" id="facultyClasses"></div>
+      </section>
+
+      <section class="tab-section" id="fTimetable">
+        <div class="section-head"><div class="section-title">My Timetable</div><div class="login-hint" style="margin:0">Sem 2 · 2026</div></div>
+        <div class="timetable" id="facultyTimetable"></div>
+      </section>
+
+      <section class="tab-section" id="fStudents">
+        <div class="section-head"><div class="section-title">My Students</div><div class="login-hint" style="margin:0">Section B</div></div>
+        <div class="search-bar"><span>🔍</span><input class="search-input" id="studentSearch" placeholder="Search by name or roll no."></div>
+        <div class="student-list" id="facultyStudents"></div>
+      </section>
+
+      <section class="tab-section" id="fProfile">
+        <div class="profile-card profile-hero">
+          <div class="profile-big-av faculty"><img class="profile-pic" src="https://i.pravatar.cc/180?u=sunita-reddy-faculty" alt="Prof. Sunita Reddy" onerror="this.remove();this.parentElement.textContent='SR';"></div>
+          <div class="profile-name">Prof. Sunita Reddy</div>
+          <div class="profile-meta">FAC2019018 · Mathematics Dept.</div>
+          <div class="profile-meta">Associate Professor</div>
+        </div>
+        <div class="profile-section-title">Work Details</div>
+        <div class="profile-card">
+          <div class="profile-row"><span class="profile-row-label">Faculty ID</span><span class="profile-row-val">FAC2019018</span></div>
+          <div class="profile-row"><span class="profile-row-label">Email</span><span class="profile-row-val">s.reddy@college.edu.in</span></div>
+          <div class="profile-row"><span class="profile-row-label">Phone</span><span class="profile-row-val">+91 98001 12345</span></div>
+          <div class="profile-row"><span class="profile-row-label">Department</span><span class="profile-row-val">Mathematics</span></div>
+          <div class="profile-row"><span class="profile-row-label">Subjects</span><span class="profile-row-val">Applied Mathematics, Linear Algebra</span></div>
+          <div class="profile-row"><span class="profile-row-label">Cabin</span><span class="profile-row-val">Room 412, Block A</span></div>
+          <div class="profile-row"><span class="profile-row-label">Office Hours</span><span class="profile-row-val">Mon-Fri, 3:30 PM - 4:30 PM</span></div>
+          <div class="profile-row"><span class="profile-row-label">Joining Date</span><span class="profile-row-val">12 Jun 2019</span></div>
+        </div>
+        <div class="profile-section-title">Identity & Payment</div>
+        <div class="profile-card">
+          <div class="profile-row"><span class="profile-row-label">Aadhaar</span><span class="profile-row-val">XXXX XXXX 4582</span></div>
+          <div class="profile-row"><span class="profile-row-label">PAN</span><span class="profile-row-val">ABCDE1234F</span></div>
+          <div class="profile-row"><span class="profile-row-label">Bank</span><span class="profile-row-val">State Bank of India</span></div>
+          <div class="profile-row"><span class="profile-row-label">Account</span><span class="profile-row-val">XXXXXX9214 · SBIN0001234</span></div>
+          <div class="profile-row"><span class="profile-row-label">UPI</span><span class="profile-row-val">sreddy@upi</span></div>
+        </div>
+        <div class="profile-section-title">Assigned Classes</div>
+        <div class="profile-card">
+          <div class="profile-row"><span class="profile-row-label">Section</span><span class="profile-row-val">CSE Section B</span></div>
+          <div class="profile-row"><span class="profile-row-label">Students</span><span class="profile-row-val">62</span></div>
+          <div class="profile-row"><span class="profile-row-label">Advisor Role</span><span class="profile-row-val">Semester 2 faculty advisor</span></div>
+        </div>
+        <button class="signout-btn" type="button" data-logout>Sign out</button>
+      </section>
+    </main>
+
+    <nav class="bottom-nav">
+      <button class="nav-item active" type="button" data-ftab="fHome"><span class="nav-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12L12 3l9 9"/><path d="M5 10v10a1 1 0 001 1h3v-5h6v5h3a1 1 0 001-1V10"/></svg></span>Home</button>
+      <button class="nav-item" type="button" data-ftab="fTimetable"><span class="nav-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>Timetable</button>
+      <button class="nav-item" type="button" data-ftab="fStudents"><span class="nav-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2 21a7 7 0 0114 0"/><path d="M16 11a3 3 0 110-6"/><path d="M22 21a6 6 0 00-6-6"/></svg></span>Students</button>
+      <button class="nav-item" type="button" data-ftab="fProfile"><span class="nav-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 10-16 0"/></svg></span>Profile</button>
+    </nav>
+  </section>
+
+  <div class="modal-overlay" id="attendanceModal">
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <div class="modal-title" id="modalTitle">Mark Attendance</div>
+      <div class="modal-sub" id="modalSub"></div>
+      <div id="modalStudents"></div>
+      <label class="notify-check"><input type="checkbox" id="notifyParents" checked> Notify parents/guardians of absent students</label>
+      <button class="modal-save-btn" id="modalSave" type="button">Save Attendance</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
+

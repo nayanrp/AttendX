@@ -1,0 +1,1953 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AttendX</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --brand: #4f46e5;
+      --brand-dark: #4338ca;
+      --brand-light: #eef2ff;
+      --purple: #7c3aed;
+      --surface: #ffffff;
+      --surface2: #f8f9fb;
+      --surface3: #f1f3f9;
+      --border: #e5e7eb;
+      --text: #111827;
+      --text2: #6b7280;
+      --text3: #9ca3af;
+      --green: #10b981;
+      --green-light: #d1fae5;
+      --red: #ef4444;
+      --red-light: #fee2e2;
+      --amber: #f59e0b;
+      --amber-light: #fef3c7;
+      --teal: #0891b2;
+      --teal-light: #cffafe;
+      --radius: 12px;
+      --radius-sm: 8px;
+      --shadow: 0 20px 60px rgba(79, 70, 229, 0.26);
+    }
+
+    body {
+      min-height: 100vh;
+      background: var(--surface2);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    button, input { font: inherit; }
+    button { border: 0; cursor: pointer; }
+    .hidden { display: none !important; }
+
+    #login-page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      background: linear-gradient(135deg, var(--brand), var(--purple));
+    }
+
+    .login-card {
+      width: 100%;
+      max-width: 400px;
+      background: var(--surface);
+      border-radius: 20px;
+      padding: 2.35rem 2rem;
+      box-shadow: var(--shadow);
+    }
+
+    .login-logo, .topbar-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--brand);
+      color: #ffffff;
+      font-size: 20px;
+      font-weight: 800;
+    }
+
+    .logo-text {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: 0;
+    }
+
+    .logo-text span, .topbar-logo span { color: var(--brand); }
+    .login-heading { font-size: 24px; font-weight: 800; margin: 2rem 0 0.25rem; }
+    .login-sub { color: var(--text2); font-size: 14px; margin-bottom: 2rem; }
+    .form-group { margin-bottom: 1.2rem; }
+    .form-label { display: block; margin-bottom: 6px; color: var(--text2); font-size: 13px; font-weight: 600; }
+
+    .form-input {
+      width: 100%;
+      padding: 11px 14px;
+      min-height: 45px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      outline: none;
+      font-size: 15px;
+    }
+
+    .form-input:focus { border-color: var(--brand); }
+
+    .pass-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .pass-wrap .form-input {
+      padding-right: 42px;
+    }
+
+    .pass-eye {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--text3);
+      cursor: pointer;
+      padding: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .pass-eye:hover { color: var(--brand); }
+    .pass-eye.active { color: var(--brand); }
+
+    .login-btn.loading {
+      opacity: 0.7;
+      pointer-events: none;
+      position: relative;
+    }
+
+    .login-btn.loading::after {
+      content: '';
+      width: 18px;
+      height: 18px;
+      border: 2px solid transparent;
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      display: inline-block;
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .login-btn {
+      width: 100%;
+      padding: 13px;
+      margin-top: 0.45rem;
+      border-radius: var(--radius-sm);
+      background: var(--brand);
+      color: #ffffff;
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .login-btn:hover { background: var(--brand-dark); }
+    .login-hint { margin-top: 1rem; text-align: center; color: var(--text3); font-size: 13px; line-height: 1.45; }
+    .login-error { min-height: 18px; margin-top: 0.8rem; color: var(--red); font-size: 13px; text-align: center; font-weight: 700; }
+    .auth-link { background: none; color: var(--brand); font-size: 13px; font-weight: 800; }
+    .auth-panel { display: none; }
+    .auth-panel.active { display: block; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 10px; }
+    .form-select { width: 100%; min-height: 45px; padding: 0 12px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); background: #fff; color: var(--text); outline: none; }
+    .create-fields { display: none; }
+    .create-fields.active { display: block; }
+
+    .app {
+      min-height: 100vh;
+      display: none;
+      flex-direction: column;
+    }
+
+    .app.active { display: flex; }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 1.25rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+
+    .topbar-logo {
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .clock { color: var(--text2); font-size: 13px; font-variant-numeric: tabular-nums; }
+
+    .notif-btn, .avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: visible;
+    }
+
+    .notif-btn {
+      position: relative;
+      background: var(--surface3);
+      color: var(--text2);
+      font-size: 16px;
+    }
+
+    .notif-dot {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--red);
+      display: none;
+    }
+
+    .notif-dot.active { display: block; }
+
+    .notif-wrap {
+      position: relative;
+    }
+
+    .notif-panel {
+      display: none;
+      position: absolute;
+      top: 44px;
+      right: -8px;
+      width: 320px;
+      max-height: 400px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: var(--surface);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+      z-index: 100;
+      overflow: hidden;
+    }
+
+    .notif-panel.active { display: block; }
+
+    .notif-panel-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .notif-panel-title { font-size: 14px; font-weight: 800; }
+
+    .notif-clear-btn {
+      background: none;
+      color: var(--brand);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .notif-panel-list {
+      max-height: 340px;
+      overflow-y: auto;
+    }
+
+    .notif-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .notif-item:last-child { border-bottom: 0; }
+
+    .notif-item-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .notif-item-icon.absent { background: var(--red-light); color: var(--red); }
+    .notif-item-icon.info { background: var(--brand-light); color: var(--brand); }
+    .notif-item-icon.parent { background: var(--amber-light); color: var(--amber); }
+
+    .notif-item-text { font-size: 13px; line-height: 1.4; }
+    .notif-item-time { margin-top: 3px; color: var(--text3); font-size: 11px; }
+    .notif-empty { padding: 2rem 1rem; text-align: center; color: var(--text3); font-size: 13px; }
+
+    .avatar {
+      background: var(--brand-light);
+      color: var(--brand);
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+
+    .avatar:hover { opacity: 0.75; }
+    .req { color: var(--red); font-weight: 700; }
+
+    .avatar img, .profile-pic {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .avatar.faculty { background: var(--amber-light); color: #92400e; }
+
+    .main-content {
+      flex: 1;
+      width: 100%;
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 1.25rem 1.25rem 100px;
+    }
+
+    .greeting-card {
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 1.25rem;
+      border-radius: 16px;
+      padding: 1.25rem 1.5rem;
+      color: #ffffff;
+    }
+
+    .greeting-card.student { background: linear-gradient(135deg, var(--brand), var(--purple)); }
+    .greeting-card.faculty { background: linear-gradient(135deg, #0f766e, var(--teal)); }
+
+    .greeting-card::after {
+      content: "";
+      position: absolute;
+      right: -20px;
+      top: -20px;
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.08);
+    }
+
+    .greeting-name { font-size: 19px; font-weight: 800; margin-bottom: 3px; }
+    .greeting-sub { font-size: 13px; opacity: 0.82; margin-bottom: 1rem; }
+    .greeting-meta { display: flex; flex-wrap: wrap; gap: 1rem; }
+    .greeting-meta-item { display: flex; align-items: center; gap: 5px; font-size: 12px; opacity: 0.9; }
+
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 1.25rem;
+    }
+
+    .stat-card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      padding: 1rem 0.75rem;
+      text-align: center;
+    }
+
+    .stat-val { font-size: 22px; font-weight: 900; }
+    .stat-val.green { color: var(--green); }
+    .stat-val.red { color: var(--red); }
+    .stat-val.amber { color: var(--amber); }
+    .stat-val.teal { color: var(--teal); }
+    .stat-label { margin-top: 2px; color: var(--text2); font-size: 11px; }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.75rem;
+    }
+
+    .section-title { font-size: 16px; font-weight: 800; }
+    .section-link { background: none; color: var(--brand); font-size: 13px; }
+    .tab-section { display: none; }
+    .tab-section.active { display: block; }
+
+    .timetable, .att-list, .class-list, .student-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 1.5rem; }
+
+    .tt-item, .att-item, .fac-class-card, .stu-card, .profile-card, .punch-card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+    }
+
+    .tt-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0.85rem 1rem;
+    }
+
+    .tt-item.ongoing { border-color: #a5b4fc; background: #fafafe; }
+    .tt-time-col { min-width: 60px; text-align: center; }
+    .tt-time { color: var(--brand); font-size: 12px; font-weight: 800; }
+    .tt-range { margin-top: 2px; color: var(--text3); font-size: 10px; }
+    .tt-divider { width: 1px; height: 40px; background: var(--border); }
+    .tt-info { flex: 1; min-width: 0; }
+    .tt-sub { font-size: 14px; font-weight: 700; }
+    .tt-faculty { margin-top: 2px; color: var(--text2); font-size: 12px; }
+    .tt-room { margin-top: 1px; color: var(--text3); font-size: 11px; }
+    .pill { padding: 3px 9px; border-radius: 20px; white-space: nowrap; font-size: 11px; font-weight: 700; }
+    .pill.theory { background: var(--brand-light); color: var(--brand); }
+    .pill.lab { background: #ede9fe; color: #5b21b6; }
+    .pill.live { background: var(--green-light); color: #065f46; }
+    .pill.done { background: var(--surface3); color: var(--text2); }
+
+    .att-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0.85rem 1rem;
+    }
+
+    .att-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 16px;
+      font-weight: 800;
+    }
+
+    .att-icon.good { background: var(--green-light); color: var(--green); }
+    .att-icon.warn { background: var(--amber-light); color: var(--amber); }
+    .att-icon.low { background: var(--red-light); color: var(--red); }
+    .att-info { flex: 1; min-width: 0; }
+    .att-sub { font-size: 14px; font-weight: 700; }
+    .att-code { margin-top: 1px; color: var(--text3); font-size: 11px; }
+    .att-right { flex-shrink: 0; text-align: right; }
+    .att-pct { font-size: 18px; font-weight: 900; }
+    .att-pct.good { color: var(--green); }
+    .att-pct.warn { color: var(--amber); }
+    .att-pct.low { color: var(--red); }
+    .att-classes { margin-top: 1px; color: var(--text3); font-size: 11px; }
+    .prog-bar { height: 4px; margin-top: 6px; border-radius: 2px; overflow: hidden; background: var(--surface3); }
+    .prog-fill { height: 100%; border-radius: 2px; }
+    .prog-fill.good { background: var(--green); }
+    .prog-fill.warn { background: var(--amber); }
+    .prog-fill.low { background: var(--red); }
+
+    .punch-card { padding: 1.25rem; margin-bottom: 1.25rem; }
+    .punch-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+    .punch-title { font-size: 15px; font-weight: 800; }
+    .punch-date { color: var(--text2); font-size: 12px; }
+    .punch-row { display: flex; gap: 10px; }
+    .punch-box { flex: 1; border-radius: 10px; padding: 0.85rem; background: var(--surface3); text-align: center; }
+    .punch-box.in { background: var(--green-light); }
+    .punch-box.out { background: var(--red-light); }
+    .punch-label { color: var(--text2); font-size: 11px; margin-bottom: 4px; }
+    .punch-time { color: var(--text3); font-size: 18px; font-weight: 900; }
+    .punch-time.green { color: var(--green); }
+    .punch-time.red { color: var(--red); }
+    .punch-btn { width: 100%; margin-top: 1rem; padding: 12px; border-radius: var(--radius-sm); color: #fff; background: var(--green); font-weight: 800; }
+    .punch-btn.out { background: var(--red); }
+    .punch-btn:disabled { opacity: 0.48; cursor: not-allowed; }
+
+    .fac-class-card { padding: 1rem; margin-bottom: 0.5rem; }
+    .fac-class-top { display: flex; align-items: center; gap: 10px; margin-bottom: 0.75rem; }
+    .fac-class-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; background: #f0fdf4; color: #16a34a; font-weight: 900; }
+    .fac-class-info { flex: 1; }
+    .fac-class-name { font-size: 14px; font-weight: 800; }
+    .fac-class-meta { margin-top: 2px; color: var(--text2); font-size: 12px; }
+    .mark-att-btn { width: 100%; padding: 10px; border-radius: var(--radius-sm); background: var(--green); color: #fff; font-size: 13px; font-weight: 800; }
+    .mark-att-btn.locked { background: var(--surface3); color: var(--text3); cursor: pointer; }
+
+    .search-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 1rem;
+      padding: 10px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--surface);
+    }
+
+    .search-input { flex: 1; border: 0; outline: 0; background: transparent; color: var(--text); font-size: 14px; }
+    .stu-card { display: flex; align-items: center; gap: 12px; padding: 0.85rem 1rem; margin-bottom: 2px; }
+    .stu-av { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--brand-light); color: var(--brand); font-size: 12px; font-weight: 800; }
+    .stu-card-info { flex: 1; }
+    .stu-card-name { font-size: 14px; font-weight: 700; }
+    .stu-card-meta { margin-top: 2px; color: var(--text2); font-size: 12px; }
+    .stu-card-pct { font-size: 16px; font-weight: 900; }
+
+    .profile-card { overflow: hidden; margin-bottom: 1rem; }
+    .profile-hero { padding: 1.5rem; text-align: center; }
+    .profile-big-av { width: 72px; height: 72px; margin: 0 auto 12px; border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden; background: var(--brand-light); color: var(--brand); font-size: 26px; font-weight: 900; }
+    .profile-big-av.faculty { background: var(--amber-light); color: #92400e; }
+    .profile-name { font-size: 18px; font-weight: 800; }
+    .profile-meta { margin-top: 3px; color: var(--text2); font-size: 13px; }
+    .profile-section-title { margin: 1.25rem 0 0.5rem; padding: 0 0.25rem; color: var(--text3); font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; }
+    .profile-row { display: flex; gap: 12px; padding: 0.85rem 1rem; border-bottom: 1px solid var(--border); }
+    .profile-row:last-child { border-bottom: 0; }
+    .profile-row-label { width: 112px; flex-shrink: 0; color: var(--text2); font-size: 12px; }
+    .profile-row-val { flex: 1; font-size: 14px; }
+    .signout-btn { width: 100%; padding: 12px; margin-top: 1rem; margin-bottom: 1.5rem; border-radius: var(--radius-sm); background: var(--red-light); color: var(--red); font-weight: 800; }
+
+    .bottom-nav {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 50;
+      display: flex;
+      height: 62px;
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+    }
+
+    .nav-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      background: none;
+      color: var(--text3);
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .nav-item .nav-ico { display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; line-height: 1; }
+    .nav-item.active { color: var(--brand); }
+    .faculty-app .nav-item.active { color: #0f766e; }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 120;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      background: rgba(0,0,0,0.45);
+    }
+
+    .modal-overlay.active { display: flex; }
+    .modal-sheet { width: 100%; max-width: 700px; max-height: 85vh; overflow-y: auto; border-radius: 20px 20px 0 0; padding: 1.25rem; background: var(--surface); }
+    .modal-handle { width: 40px; height: 4px; margin: 0 auto 1rem; border-radius: 2px; background: var(--border); }
+    .modal-title { font-size: 16px; font-weight: 800; margin-bottom: 0.25rem; }
+    .modal-sub { color: var(--text2); font-size: 13px; margin-bottom: 1rem; }
+    .student-att-row { display: flex; align-items: center; gap: 10px; padding: 0.75rem 0; border-bottom: 1px solid var(--border); }
+    .student-att-row:last-child { border-bottom: 0; }
+    .stu-name { font-size: 14px; font-weight: 700; }
+    .stu-roll { margin-top: 1px; color: var(--text3); font-size: 11px; }
+    .att-toggle { display: flex; overflow: hidden; border: 1px solid var(--border); border-radius: var(--radius-sm); }
+    .att-toggle-btn { padding: 6px 14px; background: #fff; color: var(--text3); font-size: 12px; font-weight: 800; }
+    .att-toggle-btn.present.sel { background: var(--green); color: #fff; }
+    .att-toggle-btn.absent.sel { background: var(--red); color: #fff; }
+    .modal-save-btn { width: 100%; padding: 13px; margin-top: 1rem; border-radius: var(--radius-sm); background: var(--brand); color: #fff; font-size: 15px; font-weight: 800; }
+
+    .notify-check {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 1rem;
+      padding: 0.75rem 1rem;
+      border-radius: var(--radius-sm);
+      background: var(--amber-light);
+      color: #92400e;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .notify-check input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--amber);
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 80px;
+      z-index: 200;
+      transform: translate(-50%, 10px);
+      opacity: 0;
+      pointer-events: none;
+      transition: 160ms ease;
+      padding: 10px 18px;
+      border-radius: 8px;
+      background: #111827;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .toast.show { transform: translate(-50%, 0); opacity: 1; }
+
+    @media (max-width: 520px) {
+      .login-card { padding: 2rem 1.5rem; }
+      .topbar { padding: 0 1rem; }
+      .clock { display: none; }
+      .main-content { padding-inline: 1rem; }
+      .stats-row { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .tt-item, .att-item { padding: 0.78rem 0.82rem; }
+      .form-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <section id="login-page">
+    <form class="login-card" id="loginForm">
+      <div class="login-logo">
+        <div class="logo-icon">A</div>
+        <div class="logo-text">Attend<span>X</span></div>
+      </div>
+      <div class="login-heading">Welcome back</div>
+      <div class="login-sub">Sign in to your college portal</div>
+      <div class="auth-panel active" id="signinPanel">
+        <div class="form-group">
+          <label class="form-label" for="loginId">College ID or Email</label>
+          <input class="form-input" id="loginId" placeholder="e.g. 1BM22CS045 or FAC2019018" autocomplete="username">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="loginPass">Password</label>
+          <div class="pass-wrap"><input class="form-input" id="loginPass" type="password" placeholder="Enter your password" autocomplete="current-password"><button class="pass-eye" id="loginPassEye" type="button"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
+        </div>
+        <button class="login-btn" id="loginBtn" type="submit">Sign In</button>
+        <div class="login-hint">Demo student: 1BM22CS045<br>Demo faculty: FAC2019018<br>Password: demo123</div>
+        <div class="login-hint">Don't have an account? <button class="auth-link" id="createTab" type="button">Sign up</button></div>
+      </div>
+
+      <div class="auth-panel" id="createPanel">
+        <div class="section-head" style="margin-bottom:1rem">
+          <div class="section-title">Create Account</div>
+          <button class="section-link" id="signinTab" type="button">Back to sign in</button>
+        </div>
+        <input type="hidden" id="createRole" value="student">
+        <div class="form-grid">
+          <div class="form-group"><label class="form-label" for="createName">Full Name <span class="req">*</span></label><input class="form-input" id="createName" placeholder="Min 3 characters"></div>
+          <div class="form-group"><label class="form-label" for="createId">College ID <span class="req">*</span></label><input class="form-input" id="createId" placeholder="Roll no / Faculty ID"></div>
+        </div>
+        <div class="form-grid">
+          <div class="form-group"><label class="form-label" for="createEmail">Email <span class="req">*</span></label><input class="form-input" id="createEmail" type="email" placeholder="college email"></div>
+          <div class="form-group"><label class="form-label" for="createPassword">Password <span class="req">*</span></label><div class="pass-wrap"><input class="form-input" id="createPassword" type="password" placeholder="Min 8, upper, number, special"><button class="pass-eye" id="createPassEye" type="button"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
+        </div>
+        <div class="form-grid">
+          <div class="form-group"><label class="form-label" for="createPhone">Phone <span class="req">*</span></label><input class="form-input" id="createPhone" placeholder="+91 XXXXX XXXXX"></div>
+          <div class="form-group"><label class="form-label" for="createPhoto">Photo URL</label><input class="form-input" id="createPhoto" placeholder="optional profile pic url"></div>
+        </div>
+        <div class="form-group"><label class="form-label" for="createAddress">Address <span class="req">*</span></label><input class="form-input" id="createAddress" placeholder="Full address (min 10 characters)"></div>
+
+        <div class="create-fields active" id="studentCreateFields">
+          <div class="form-grid">
+            <div class="form-group"><label class="form-label" for="createDepartment">Department <span class="req">*</span></label><input class="form-input" id="createDepartment" placeholder="CSE"></div>
+            <div class="form-group"><label class="form-label" for="createSection">Semester / Section <span class="req">*</span></label><input class="form-input" id="createSection" placeholder="Sem 2 / B"></div>
+          </div>
+          <div class="form-grid">
+            <div class="form-group"><label class="form-label" for="createParent">Parent / Guardian <span class="req">*</span></label><input class="form-input" id="createParent" placeholder="guardian name"></div>
+            <div class="form-group"><label class="form-label" for="createParentPhone">Guardian Number <span class="req">*</span></label><input class="form-input" id="createParentPhone" placeholder="+91 XXXXX XXXXX"></div>
+          </div>
+        </div>
+
+
+        <button class="login-btn" id="createAccountBtn" type="button">Create Account</button>
+        <div class="login-hint"><span class="req">*</span> Required fields. For now this saves locally.</div>
+      </div>
+      <div class="login-error" id="loginError"></div>
+    </form>
+  </section>
+
+  <section class="app student-app" id="studentApp">
+    <header class="topbar">
+      <div class="topbar-logo">Attend<span>X</span></div>
+      <div class="topbar-right">
+        <span class="clock" id="studentClock"></span>
+        <div class="notif-wrap">
+          <button class="notif-btn" id="studentNotifBtn" type="button"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg><span class="notif-dot" id="studentNotifDot"></span></button>
+          <div class="notif-panel" id="studentNotifPanel">
+            <div class="notif-panel-head"><span class="notif-panel-title">Notifications</span><button class="notif-clear-btn" id="studentNotifClear" type="button">Clear all</button></div>
+            <div class="notif-panel-list" id="studentNotifList"><div class="notif-empty">No notifications yet</div></div>
+          </div>
+        </div>
+        <div class="avatar" id="studentAvatar"><img src="https://i.pravatar.cc/120?u=nayan-k-student" alt="Nayan K" onerror="this.remove();this.parentElement.textContent='NK';"></div>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <section class="tab-section active" id="sHome">
+        <div class="greeting-card student">
+          <div class="greeting-name" id="studentGreetingName">Good morning, Nayan</div>
+          <div class="greeting-sub">Semester 2 · CSE Section B</div>
+          <div class="greeting-meta">
+            <div class="greeting-meta-item">4 classes today</div>
+            <div class="greeting-meta-item">1BM22CS045</div>
+          </div>
+        </div>
+        <div class="stats-row" id="studentStats"></div>
+        <div class="section-head">
+          <div class="section-title">Today's Schedule</div>
+          <button class="section-link" type="button" data-stab="sTimetable">See all</button>
+        </div>
+        <div class="timetable" id="studentToday"></div>
+      </section>
+
+      <section class="tab-section" id="sTimetable">
+        <div class="section-head">
+          <div class="section-title">Full Timetable</div>
+          <div class="login-hint" style="margin:0">Sem 2 · 2026</div>
+        </div>
+        <div class="timetable" id="studentTimetable"></div>
+      </section>
+
+      <section class="tab-section" id="sAttendance">
+        <div class="section-head">
+          <div class="section-title">My Attendance</div>
+          <div class="login-hint" style="margin:0">Semester 2</div>
+        </div>
+        <div class="att-list" id="studentAttendance"></div>
+      </section>
+
+      <section class="tab-section" id="sProfile">
+        <div id="studentProfileContent"></div>
+        <button class="signout-btn" type="button" data-logout>Sign out</button>
+      </section>
+    </main>
+
+    <nav class="bottom-nav">
+      <button class="nav-item active" type="button" data-stab="sHome"><span class="nav-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12L12 3l9 9"/><path d="M5 10v10a1 1 0 001 1h3v-5h6v5h3a1 1 0 001-1V10"/></svg></span>Home</button>
+      <button class="nav-item" type="button" data-stab="sTimetable"><span class="nav-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>Timetable</button>
+      <button class="nav-item" type="button" data-stab="sAttendance"><span class="nav-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="14" width="4" height="7" rx="1"/><rect x="10" y="9" width="4" height="12" rx="1"/><rect x="16" y="4" width="4" height="17" rx="1"/></svg></span>Attendance</button>
+      <button class="nav-item" type="button" data-stab="sProfile"><span class="nav-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 10-16 0"/></svg></span>Profile</button>
+    </nav>
+  </section>
+
+  <section class="app faculty-app" id="facultyApp">
+    <header class="topbar">
+      <div class="topbar-logo">Attend<span>X</span></div>
+      <div class="topbar-right">
+        <span class="clock" id="facultyClock"></span>
+        <div class="notif-wrap">
+          <button class="notif-btn" id="facultyNotifBtn" type="button"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg><span class="notif-dot" id="facultyNotifDot"></span></button>
+          <div class="notif-panel" id="facultyNotifPanel">
+            <div class="notif-panel-head"><span class="notif-panel-title">Notifications</span><button class="notif-clear-btn" id="facultyNotifClear" type="button">Clear all</button></div>
+            <div class="notif-panel-list" id="facultyNotifList"><div class="notif-empty">No notifications yet</div></div>
+          </div>
+        </div>
+        <div class="avatar faculty" id="facultyAvatar"><img src="https://i.pravatar.cc/120?u=sunita-reddy-faculty" alt="Prof. Sunita Reddy" onerror="this.remove();this.parentElement.textContent='SR';"></div>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <section class="tab-section active" id="fHome">
+        <div class="greeting-card faculty">
+          <div class="greeting-name" id="facultyGreetingName">Good morning, Prof. Reddy</div>
+          <div class="greeting-sub">Applied Mathematics · Section B</div>
+          <div class="greeting-meta">
+            <div class="greeting-meta-item">3 lectures today</div>
+            <div class="greeting-meta-item">62 students</div>
+          </div>
+        </div>
+
+        <div class="punch-card">
+          <div class="punch-header">
+            <div class="punch-title">Today's Attendance</div>
+            <div class="punch-date" id="facultyDate"></div>
+          </div>
+          <div class="punch-row">
+            <div class="punch-box" id="punchInBox"><div class="punch-label">Punch In</div><div class="punch-time" id="punchInTime">--:--</div></div>
+            <div class="punch-box" id="punchOutBox"><div class="punch-label">Punch Out</div><div class="punch-time" id="punchOutTime">--:--</div></div>
+          </div>
+          <button class="punch-btn" id="punchButton" type="button">Punch In</button>
+        </div>
+
+        <div class="stats-row" id="facultyStats"></div>
+        <div class="section-head"><div class="section-title">Today's Classes</div></div>
+        <div class="class-list" id="facultyClasses"></div>
+      </section>
+
+      <section class="tab-section" id="fTimetable">
+        <div class="section-head"><div class="section-title">My Timetable</div><div class="login-hint" style="margin:0">Sem 2 · 2026</div></div>
+        <div class="timetable" id="facultyTimetable"></div>
+      </section>
+
+      <section class="tab-section" id="fStudents">
+        <div class="section-head"><div class="section-title">My Students</div><div class="login-hint" style="margin:0">Section B</div></div>
+        <div class="search-bar"><span>🔍</span><input class="search-input" id="studentSearch" placeholder="Search by name or roll no."></div>
+        <div class="student-list" id="facultyStudents"></div>
+      </section>
+
+      <section class="tab-section" id="fProfile">
+        <div class="profile-card profile-hero">
+          <div class="profile-big-av faculty"><img class="profile-pic" src="https://i.pravatar.cc/180?u=sunita-reddy-faculty" alt="Prof. Sunita Reddy" onerror="this.remove();this.parentElement.textContent='SR';"></div>
+          <div class="profile-name">Prof. Sunita Reddy</div>
+          <div class="profile-meta">FAC2019018 · Mathematics Dept.</div>
+          <div class="profile-meta">Associate Professor</div>
+        </div>
+        <div class="profile-section-title">Work Details</div>
+        <div class="profile-card">
+          <div class="profile-row"><span class="profile-row-label">Faculty ID</span><span class="profile-row-val">FAC2019018</span></div>
+          <div class="profile-row"><span class="profile-row-label">Email</span><span class="profile-row-val">s.reddy@college.edu.in</span></div>
+          <div class="profile-row"><span class="profile-row-label">Phone</span><span class="profile-row-val">+91 98001 12345</span></div>
+          <div class="profile-row"><span class="profile-row-label">Department</span><span class="profile-row-val">Mathematics</span></div>
+          <div class="profile-row"><span class="profile-row-label">Subjects</span><span class="profile-row-val">Applied Mathematics, Linear Algebra</span></div>
+          <div class="profile-row"><span class="profile-row-label">Cabin</span><span class="profile-row-val">Room 412, Block A</span></div>
+          <div class="profile-row"><span class="profile-row-label">Office Hours</span><span class="profile-row-val">Mon-Fri, 3:30 PM - 4:30 PM</span></div>
+          <div class="profile-row"><span class="profile-row-label">Joining Date</span><span class="profile-row-val">12 Jun 2019</span></div>
+        </div>
+        <div class="profile-section-title">Identity & Payment</div>
+        <div class="profile-card">
+          <div class="profile-row"><span class="profile-row-label">Aadhaar</span><span class="profile-row-val">XXXX XXXX 4582</span></div>
+          <div class="profile-row"><span class="profile-row-label">PAN</span><span class="profile-row-val">ABCDE1234F</span></div>
+          <div class="profile-row"><span class="profile-row-label">Bank</span><span class="profile-row-val">State Bank of India</span></div>
+          <div class="profile-row"><span class="profile-row-label">Account</span><span class="profile-row-val">XXXXXX9214 · SBIN0001234</span></div>
+          <div class="profile-row"><span class="profile-row-label">UPI</span><span class="profile-row-val">sreddy@upi</span></div>
+        </div>
+        <div class="profile-section-title">Assigned Classes</div>
+        <div class="profile-card">
+          <div class="profile-row"><span class="profile-row-label">Section</span><span class="profile-row-val">CSE Section B</span></div>
+          <div class="profile-row"><span class="profile-row-label">Students</span><span class="profile-row-val">62</span></div>
+          <div class="profile-row"><span class="profile-row-label">Advisor Role</span><span class="profile-row-val">Semester 2 faculty advisor</span></div>
+        </div>
+        <button class="signout-btn" type="button" data-logout>Sign out</button>
+      </section>
+    </main>
+
+    <nav class="bottom-nav">
+      <button class="nav-item active" type="button" data-ftab="fHome"><span class="nav-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12L12 3l9 9"/><path d="M5 10v10a1 1 0 001 1h3v-5h6v5h3a1 1 0 001-1V10"/></svg></span>Home</button>
+      <button class="nav-item" type="button" data-ftab="fTimetable"><span class="nav-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>Timetable</button>
+      <button class="nav-item" type="button" data-ftab="fStudents"><span class="nav-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2 21a7 7 0 0114 0"/><path d="M16 11a3 3 0 110-6"/><path d="M22 21a6 6 0 00-6-6"/></svg></span>Students</button>
+      <button class="nav-item" type="button" data-ftab="fProfile"><span class="nav-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 10-16 0"/></svg></span>Profile</button>
+    </nav>
+  </section>
+
+  <div class="modal-overlay" id="attendanceModal">
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <div class="modal-title" id="modalTitle">Mark Attendance</div>
+      <div class="modal-sub" id="modalSub"></div>
+      <div id="modalStudents"></div>
+      <label class="notify-check"><input type="checkbox" id="notifyParents" checked> Notify parents/guardians of absent students</label>
+      <button class="modal-save-btn" id="modalSave" type="button">Save Attendance</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script type="module">
+    // --- FIREBASE SERVICE SECTION ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyCbW4FJUa7IMNTWdieID66ShxfbADCyKoA",
+      authDomain: "hydra-99b35.firebaseapp.com",
+      projectId: "hydra-99b35",
+      storageBucket: "hydra-99b35.firebasestorage.app",
+      messagingSenderId: "490750240270",
+      appId: "1:490750240270:web:dc7231bae58a31b4933e5f",
+      measurementId: "G-6LLVNFT6YQ"
+    };
+
+    const accountsStorageKey = "attendx-created-accounts-v1";
+    const attendanceStorageKey = "attendx-attendance-v1";
+    const notificationsStorageKey = "attendx-notifications-v1";
+    let firebaseApi = null;
+
+    async function initDataStore() {
+      if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
+        return { mode: "local" };
+      }
+
+      try {
+        const appModule = await import("https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js");
+        const authModule = await import("https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js");
+        const firestoreModule = await import("https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js");
+        const app = appModule.initializeApp(firebaseConfig);
+        const auth = authModule.getAuth(app);
+        const db = firestoreModule.getFirestore(app);
+        firebaseApi = { auth, db, authModule, firestoreModule };
+        return { mode: "firebase" };
+      } catch (error) {
+        console.warn("Firebase unavailable; using local storage fallback.", error);
+        return { mode: "local" };
+      }
+    }
+
+    async function loadAccounts() {
+      if (!firebaseApi) return loadLocalAccounts();
+
+      const { db, firestoreModule } = firebaseApi;
+      const snapshot = await firestoreModule.getDocs(firestoreModule.collection(db, "accounts"));
+      return snapshot.docs.map((doc) => ({ firebaseDocId: doc.id, ...doc.data() }));
+    }
+
+    async function saveAccount(account) {
+      if (!firebaseApi) {
+        const accounts = loadLocalAccounts();
+        accounts.push(account);
+        localStorage.setItem(accountsStorageKey, JSON.stringify(accounts));
+        return { mode: "local" };
+      }
+
+      const { auth, db, authModule, firestoreModule } = firebaseApi;
+      const credential = await authModule.createUserWithEmailAndPassword(auth, account.email, account.password);
+      const safeAccount = { ...account, uid: credential.user.uid };
+      delete safeAccount.password;
+      await firestoreModule.setDoc(firestoreModule.doc(db, "accounts", credential.user.uid), safeAccount);
+      return { mode: "firebase", uid: credential.user.uid };
+    }
+
+    async function signInAccount(identifier, password) {
+      const accounts = firebaseApi ? await loadAccounts() : loadLocalAccounts();
+      const account = findAccount(accounts, identifier);
+
+      if (!firebaseApi) {
+        if (account && account.password !== password) return { ok: false, reason: "bad-password" };
+        return { ok: true, account };
+      }
+
+      if (!account) return { ok: false, reason: "not-found" };
+
+      try {
+        await firebaseApi.authModule.signInWithEmailAndPassword(firebaseApi.auth, account.email, password);
+        return { ok: true, account };
+      } catch (error) {
+        const code = error.code || "";
+        if (code.includes("wrong-password") || code.includes("invalid-credential")) {
+          return { ok: false, reason: "bad-password" };
+        }
+        if (code.includes("user-not-found")) {
+          return { ok: false, reason: "not-found" };
+        }
+        if (code.includes("too-many-requests")) {
+          return { ok: false, reason: "too-many-requests" };
+        }
+        return { ok: false, reason: code || "unknown" };
+      }
+    }
+
+    function findAccount(accounts, identifier) {
+      const value = identifier.trim().toLowerCase();
+      return accounts.find((account) => account.id.toLowerCase() === value || account.email.toLowerCase() === value);
+    }
+
+    async function saveAttendanceRecord(record) {
+      if (!firebaseApi) {
+        const records = JSON.parse(localStorage.getItem(attendanceStorageKey) || "[]");
+        records.push(record);
+        localStorage.setItem(attendanceStorageKey, JSON.stringify(records));
+        return { mode: "local" };
+      }
+
+      const { db, firestoreModule } = firebaseApi;
+      await firestoreModule.addDoc(firestoreModule.collection(db, "attendance"), record);
+      return { mode: "firebase" };
+    }
+
+    async function saveNotification(notification) {
+      if (!firebaseApi) {
+        const notifs = JSON.parse(localStorage.getItem(notificationsStorageKey) || "[]");
+        notifs.push(notification);
+        localStorage.setItem(notificationsStorageKey, JSON.stringify(notifs));
+        return { mode: "local" };
+      }
+
+      const { db, firestoreModule } = firebaseApi;
+      await firestoreModule.addDoc(firestoreModule.collection(db, "notifications"), notification);
+      return { mode: "firebase" };
+    }
+
+    async function loadNotifications(role, identifier) {
+      if (!firebaseApi) {
+        const notifs = JSON.parse(localStorage.getItem(notificationsStorageKey) || "[]");
+        return notifs.filter(n => n.targetId === identifier || n.targetRole === role).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      }
+
+      const { db, firestoreModule } = firebaseApi;
+      const snapshot = await firestoreModule.getDocs(firestoreModule.collection(db, "notifications"));
+      return snapshot.docs
+        .map(doc => ({ id: doc.id, ...doc.data() }))
+        .filter(n => n.targetId === identifier || n.targetRole === role)
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    }
+
+    async function clearNotifications(role, identifier) {
+      if (!firebaseApi) {
+        const notifs = JSON.parse(localStorage.getItem(notificationsStorageKey) || "[]");
+        const remaining = notifs.filter(n => n.targetId !== identifier && n.targetRole !== role);
+        localStorage.setItem(notificationsStorageKey, JSON.stringify(remaining));
+        return;
+      }
+
+      const { db, firestoreModule } = firebaseApi;
+      const snapshot = await firestoreModule.getDocs(firestoreModule.collection(db, "notifications"));
+      const batch = firestoreModule.writeBatch(db);
+      snapshot.docs
+        .filter(doc => { const d = doc.data(); return d.targetId === identifier || d.targetRole === role; })
+        .forEach(doc => batch.delete(doc.ref));
+      await batch.commit();
+    }
+
+    function loadLocalAccounts() {
+      try {
+        return JSON.parse(localStorage.getItem(accountsStorageKey)) || [];
+      } catch (error) {
+        return [];
+      }
+    }
+
+
+    // --- MAIN APP LOGIC SECTION ---
+    
+    const classes = [
+      { id: 1, subject: "Applied Mathematics", code: "MAT201", faculty: "Prof. S. Reddy", start: "09:00", end: "10:00", room: "302", floor: "Block A, 3rd Floor", type: "theory" },
+      { id: 2, subject: "C Programming", code: "CS101", faculty: "Prof. R. Reddy", start: "10:00", end: "11:00", room: "104", floor: "Block B, 1st Floor", type: "theory" },
+      { id: 3, subject: "Engineering Physics", code: "PHY101", faculty: "Dr. V. Mehta", start: "11:00", end: "12:00", room: "205", floor: "Block A, 2nd Floor", type: "theory" },
+      { id: 4, subject: "Physics Lab", code: "PHY101L", faculty: "Dr. V. Mehta", start: "12:00", end: "14:00", room: "Lab B2", floor: "Block C, Ground Floor", type: "lab" },
+      { id: 5, subject: "C Programming Lab", code: "CS101L", faculty: "Prof. R. Reddy", start: "14:00", end: "16:00", room: "Lab A1", floor: "Block B, Ground Floor", type: "lab" },
+      { id: 6, subject: "Engineering Drawing", code: "ME101", faculty: "Prof. K. Rao", start: "15:00", end: "16:00", room: "201", floor: "Block D, 2nd Floor", type: "theory" },
+      { id: 7, subject: "Linear Algebra", code: "MAT203", faculty: "Prof. S. Reddy", start: "12:00", end: "13:00", room: "308", floor: "Block A, 3rd Floor", type: "theory" },
+      { id: 8, subject: "Math Tutorial", code: "MAT201T", faculty: "Prof. S. Reddy", start: "15:00", end: "16:00", room: "306", floor: "Block A, 3rd Floor", type: "theory" }
+    ];
+
+    const students = [
+      { name: "Aarav Sharma", roll: "1BM22CS001", att: 88 },
+      { name: "Bhavna Patel", roll: "1BM22CS007", att: 74 },
+      { name: "Chetan Nair", roll: "1BM22CS012", att: 91 },
+      { name: "Divya Rao", roll: "1BM22CS018", att: 62 },
+      { name: "Eshan Gupta", roll: "1BM22CS023", att: 55 },
+      { name: "Farhan Sheikh", roll: "1BM22CS029", att: 83 },
+      { name: "Geetha Iyer", roll: "1BM22CS034", att: 79 },
+      { name: "Harish Kumar", roll: "1BM22CS040", att: 90 },
+      { name: "Isha Menon", roll: "1BM22CS041", att: 68 },
+      { name: "Nayan K", roll: "1BM22CS045", att: 78 },
+      { name: "Kavya Joshi", roll: "1BM22CS051", att: 85 }
+    ];
+
+    const attendance = [
+      { icon: "M", sub: "Applied Mathematics", code: "MAT201", present: 38, total: 42 },
+      { icon: "C", sub: "C Programming", code: "CS101", present: 35, total: 40 },
+      { icon: "P", sub: "Engineering Physics", code: "PHY101", present: 26, total: 36 },
+      { icon: "L", sub: "Physics Lab", code: "PHY101L", present: 13, total: 18 },
+      { icon: "D", sub: "Engineering Drawing", code: "ME101", present: 22, total: 36 },
+      { icon: "CL", sub: "C Programming Lab", code: "CS101L", present: 16, total: 18 }
+    ];
+
+    const facultyName = "Prof. S. Reddy";
+    const markedStorageKey = "attendx-marked-sessions-v1";
+
+    let punchState = 0;
+    let activeClassId = null;
+    let markedSessions = loadMarkedSessions();
+    let createdAccounts = [];
+    let dataStoreMode = "local";
+    let currentUser = null;
+
+    const els = {
+      loginPage: document.getElementById("login-page"),
+      loginForm: document.getElementById("loginForm"),
+      signinTab: document.getElementById("signinTab"),
+      createTab: document.getElementById("createTab"),
+      signinPanel: document.getElementById("signinPanel"),
+      createPanel: document.getElementById("createPanel"),
+      loginId: document.getElementById("loginId"),
+      loginPass: document.getElementById("loginPass"),
+      loginError: document.getElementById("loginError"),
+      createRole: document.getElementById("createRole"),
+      createAccountBtn: document.getElementById("createAccountBtn"),
+      studentCreateFields: document.getElementById("studentCreateFields"),
+      facultyCreateFields: document.getElementById("facultyCreateFields"),
+      studentApp: document.getElementById("studentApp"),
+      facultyApp: document.getElementById("facultyApp"),
+      studentClock: document.getElementById("studentClock"),
+      facultyClock: document.getElementById("facultyClock"),
+      facultyDate: document.getElementById("facultyDate"),
+      studentStats: document.getElementById("studentStats"),
+      facultyStats: document.getElementById("facultyStats"),
+      studentToday: document.getElementById("studentToday"),
+      studentTimetable: document.getElementById("studentTimetable"),
+      facultyTimetable: document.getElementById("facultyTimetable"),
+      studentAttendance: document.getElementById("studentAttendance"),
+      facultyClasses: document.getElementById("facultyClasses"),
+      facultyStudents: document.getElementById("facultyStudents"),
+      studentSearch: document.getElementById("studentSearch"),
+      attendanceModal: document.getElementById("attendanceModal"),
+      modalTitle: document.getElementById("modalTitle"),
+      modalSub: document.getElementById("modalSub"),
+      modalStudents: document.getElementById("modalStudents"),
+      modalSave: document.getElementById("modalSave"),
+      punchButton: document.getElementById("punchButton"),
+      punchInBox: document.getElementById("punchInBox"),
+      punchOutBox: document.getElementById("punchOutBox"),
+      punchInTime: document.getElementById("punchInTime"),
+      punchOutTime: document.getElementById("punchOutTime"),
+      toast: document.getElementById("toast"),
+      notifyParents: document.getElementById("notifyParents"),
+      studentNotifBtn: document.getElementById("studentNotifBtn"),
+      studentNotifPanel: document.getElementById("studentNotifPanel"),
+      studentNotifList: document.getElementById("studentNotifList"),
+      studentNotifDot: document.getElementById("studentNotifDot"),
+      studentNotifClear: document.getElementById("studentNotifClear"),
+      facultyNotifBtn: document.getElementById("facultyNotifBtn"),
+      facultyNotifPanel: document.getElementById("facultyNotifPanel"),
+      facultyNotifList: document.getElementById("facultyNotifList"),
+      facultyNotifDot: document.getElementById("facultyNotifDot"),
+      facultyNotifClear: document.getElementById("facultyNotifClear"),
+      loginBtn: document.getElementById("loginBtn"),
+      loginPassEye: document.getElementById("loginPassEye"),
+      createPassEye: document.getElementById("createPassEye"),
+      studentProfileContent: document.getElementById("studentProfileContent"),
+      studentAvatar: document.getElementById("studentAvatar"),
+      studentGreetingName: document.getElementById("studentGreetingName"),
+      facultyAvatar: document.getElementById("facultyAvatar"),
+      facultyGreetingName: document.getElementById("facultyGreetingName")
+    };
+
+    init();
+
+    async function init() {
+      const store = await initDataStore();
+      dataStoreMode = store.mode;
+      createdAccounts = await loadAccounts();
+      renderStudent();
+      renderFaculty();
+      bindEvents();
+      updateClock();
+      window.setInterval(updateClock, 1000);
+    }
+
+    function bindEvents() {
+      els.loginForm.addEventListener("submit", login);
+      els.signinTab.addEventListener("click", () => setAuthMode("signin"));
+      els.createTab.addEventListener("click", () => setAuthMode("create"));
+      els.createAccountBtn.addEventListener("click", createAccount);
+      document.querySelectorAll("[data-logout]").forEach((button) => button.addEventListener("click", logout));
+      document.querySelectorAll("[data-stab]").forEach((button) => button.addEventListener("click", () => switchTab("student", button.dataset.stab, button)));
+      document.querySelectorAll("[data-ftab]").forEach((button) => button.addEventListener("click", () => switchTab("faculty", button.dataset.ftab, button)));
+      els.studentSearch.addEventListener("input", renderStudents);
+      els.punchButton.addEventListener("click", punch);
+      els.attendanceModal.addEventListener("click", (event) => {
+        if (event.target === els.attendanceModal) closeModal();
+      });
+      els.modalSave.addEventListener("click", handleSaveAttendance);
+
+      els.studentApp.querySelector(".avatar").addEventListener("click", () => switchTab("student", "sProfile"));
+      els.facultyApp.querySelector(".avatar").addEventListener("click", () => switchTab("faculty", "fProfile"));
+
+      // Notification panel toggles
+      els.studentNotifBtn.addEventListener("click", (e) => { e.stopPropagation(); toggleNotifPanel("student"); });
+      els.facultyNotifBtn.addEventListener("click", (e) => { e.stopPropagation(); toggleNotifPanel("faculty"); });
+      els.studentNotifClear.addEventListener("click", () => handleClearNotifs("student"));
+      els.facultyNotifClear.addEventListener("click", () => handleClearNotifs("faculty"));
+
+      document.addEventListener("click", () => {
+        els.studentNotifPanel.classList.remove("active");
+        els.facultyNotifPanel.classList.remove("active");
+      });
+      els.studentNotifPanel.addEventListener("click", (e) => e.stopPropagation());
+      els.facultyNotifPanel.addEventListener("click", (e) => e.stopPropagation());
+
+      // Password eye toggles
+      if (els.loginPassEye) {
+        els.loginPassEye.addEventListener("click", () => togglePassVisibility("loginPass", els.loginPassEye));
+      }
+      if (els.createPassEye) {
+        els.createPassEye.addEventListener("click", () => togglePassVisibility("createPassword", els.createPassEye));
+      }
+    }
+
+    function togglePassVisibility(inputId, eyeBtn) {
+      const input = document.getElementById(inputId);
+      if (input.type === "password") {
+        input.type = "text";
+        eyeBtn.classList.add("active");
+      } else {
+        input.type = "password";
+        eyeBtn.classList.remove("active");
+      }
+    }
+
+    function setAuthMode(mode) {
+      const isCreate = mode === "create";
+      els.signinTab.classList.toggle("active", !isCreate);
+      els.createTab.classList.toggle("active", isCreate);
+      els.signinPanel.classList.toggle("active", !isCreate);
+      els.createPanel.classList.toggle("active", isCreate);
+      els.loginError.textContent = "";
+    }
+
+    function updateCreateFields() {
+      const isFaculty = els.createRole.value === "faculty";
+      els.studentCreateFields.classList.toggle("active", !isFaculty);
+      els.facultyCreateFields.classList.toggle("active", isFaculty);
+    }
+
+    async function login(event) {
+      event.preventDefault();
+      const id = els.loginId.value.trim();
+      const pass = els.loginPass.value.trim();
+
+      if (!id || !pass) {
+        els.loginError.textContent = "Please enter your ID and password.";
+        return;
+      }
+
+      // Show loading
+      const btn = els.loginBtn;
+      const originalText = btn.textContent;
+      btn.textContent = "Signing in";
+      btn.classList.add("loading");
+      els.loginError.textContent = "";
+
+      try {
+        const result = await signInAccount(id, pass);
+        
+        // Allow demo login bypass
+        const isDemo = (!result.ok && result.reason === "not-found" && pass === "demo123") || 
+                       (result.ok && !result.account && pass === "demo123");
+
+        if (!result.ok && !isDemo) {
+          btn.textContent = originalText;
+          btn.classList.remove("loading");
+          if (result.reason === "bad-password" || result.reason === "invalid-credential") {
+            els.loginError.textContent = "Incorrect password. Please try again.";
+          } else if (result.reason === "not-found") {
+            els.loginError.textContent = "No account found with this ID.";
+          } else if (result.reason === "too-many-requests") {
+            els.loginError.textContent = "Too many attempts. Please wait and try again.";
+          } else {
+            els.loginError.textContent = "Sign-in failed. Please check your credentials.";
+          }
+          return;
+        }
+
+        if (!result.account && pass !== "demo123") {
+          btn.textContent = originalText;
+          btn.classList.remove("loading");
+          els.loginError.textContent = "No account found. Use demo123 for demo login.";
+          return;
+        }
+
+        currentUser = result.account || null;
+        els.loginError.textContent = "";
+        els.loginPage.classList.add("hidden");
+        btn.textContent = originalText;
+        btn.classList.remove("loading");
+
+        const role = currentUser?.role || inferRole(id);
+        updateUIAfterLogin(role, id);
+        
+        if (role === "faculty") {
+          els.facultyApp.classList.add("active");
+          switchTab("faculty", "fHome");
+        } else {
+          renderUserProfile();
+          els.studentApp.classList.add("active");
+          switchTab("student", "sHome");
+        }
+        showToast(role === "faculty" ? "Faculty portal opened" : "Student portal opened");
+      } catch (error) {
+        console.error("Login error:", error);
+        btn.textContent = originalText;
+        btn.classList.remove("loading");
+        els.loginError.textContent = "Sign-in failed. Please check your credentials.";
+      }
+    }
+
+    async function createAccount() {
+      const role = getValue("createRole");
+      const name = getValue("createName");
+      const id = getValue("createId");
+      const email = getValue("createEmail");
+      const password = getValue("createPassword");
+      const phone = getValue("createPhone");
+      const address = getValue("createAddress");
+
+      // Name validation
+      if (!name || name.length < 3) {
+        els.loginError.textContent = "Full name must be at least 3 characters.";
+        return;
+      }
+
+      // College ID validation
+      if (!id || id.length < 4) {
+        els.loginError.textContent = "College ID must be at least 4 characters.";
+        return;
+      }
+
+      // Email validation
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!email || !emailRegex.test(email)) {
+        els.loginError.textContent = "Enter a valid email address.";
+        return;
+      }
+
+      // Password validation — min 8 chars, 1 uppercase, 1 number, 1 special character
+      if (password.length < 8) {
+        els.loginError.textContent = "Password must be at least 8 characters.";
+        return;
+      }
+      if (!/[A-Z]/.test(password)) {
+        els.loginError.textContent = "Password needs at least one uppercase letter.";
+        return;
+      }
+      if (!/[0-9]/.test(password)) {
+        els.loginError.textContent = "Password needs at least one number.";
+        return;
+      }
+      if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+        els.loginError.textContent = "Password needs at least one special character (!@#$%^&*).";
+        return;
+      }
+
+      // Phone validation — 10 to 13 digits
+      const phoneClean = phone.replace(/[\s\-]/g, "");
+      if (!phoneClean || !/^\+?\d{10,13}$/.test(phoneClean)) {
+        els.loginError.textContent = "Enter a valid phone number (10-13 digits).";
+        return;
+      }
+
+      // Address validation — minimum 10 characters, must contain letters
+      if (!address || address.length < 10) {
+        els.loginError.textContent = "Address must be at least 10 characters.";
+        return;
+      }
+      if (!/[a-zA-Z]/.test(address)) {
+        els.loginError.textContent = "Address must contain valid location text.";
+        return;
+      }
+
+      // Student-specific required fields
+      const dept = getValue("createDepartment");
+      const section = getValue("createSection");
+      const guardian = getValue("createParent");
+      const guardianPhone = getValue("createParentPhone");
+      if (!dept || !section) {
+        els.loginError.textContent = "Department and Section are required.";
+        return;
+      }
+      if (!guardian || guardian.length < 3) {
+        els.loginError.textContent = "Guardian name must be at least 3 characters.";
+        return;
+      }
+      const gpClean = guardianPhone.replace(/[\s\-]/g, "");
+      if (!gpClean || !/^\+?\d{10,13}$/.test(gpClean)) {
+        els.loginError.textContent = "Enter a valid guardian phone number.";
+        return;
+      }
+
+      // Duplicate check
+      if (findAccount(createdAccounts, id) || findAccount(createdAccounts, email)) {
+        els.loginError.textContent = "Account already exists for this ID or email.";
+        return;
+      }
+
+      const account = {
+        role: "student",
+        name,
+        id,
+        email,
+        password,
+        phone,
+        address,
+        photo: getValue("createPhoto"),
+        createdAt: new Date().toISOString(),
+        student: {
+          department: dept,
+          section: section,
+          guardianName: guardian,
+          guardianPhone: guardianPhone
+        },
+        faculty: null
+      };
+
+      await saveAccount(account);
+      createdAccounts = await loadAccounts();
+      els.loginId.value = id;
+      els.loginPass.value = password;
+      setAuthMode("signin");
+      showToast(dataStoreMode === "firebase" ? "Account created in Firebase" : "Account created locally");
+    }
+
+    function getValue(id) {
+      return document.getElementById(id)?.value.trim() || "";
+    }
+
+    function inferRole(id) {
+      const value = id.trim().toLowerCase();
+      return value.startsWith("fac") || value.includes("faculty") || value.includes("prof") ? "faculty" : "student";
+    }
+
+    function logout() {
+      currentUser = null;
+      els.studentApp.classList.remove("active");
+      els.facultyApp.classList.remove("active");
+      els.loginPage.classList.remove("hidden");
+      els.loginPass.value = "";
+      els.loginError.textContent = "";
+    }
+
+    function getTimeGreeting() {
+      const hour = new Date().getHours();
+      if (hour < 12) return "Good morning ☀️";
+      if (hour < 17) return "Good afternoon 🌤️";
+      if (hour < 20) return "Good evening 🌇";
+      return "Good night 🌙";
+    }
+
+    function updateUIAfterLogin(role, fallbackId) {
+      const greeting = getTimeGreeting();
+      const user = currentUser || {
+        name: role === "faculty" ? "Prof. Reddy" : "Nayan K",
+        id: fallbackId,
+        photo: role === "faculty" ? "https://i.pravatar.cc/120?u=sunita-reddy-faculty" : "https://i.pravatar.cc/120?u=nayan-k-student"
+      };
+
+      // Get short name (first name) for greeting
+      const shortName = user.name.split(" ")[0];
+
+      // Set photo fallback if no photo URL provided
+      const photoUrl = user.photo || ('https://i.pravatar.cc/120?u=' + encodeURIComponent(user.name));
+      const fallbackInitials = initials(user.name);
+
+      if (role === "faculty") {
+        if (els.facultyGreetingName) els.facultyGreetingName.textContent = greeting + ", " + shortName;
+        if (els.facultyAvatar) {
+          els.facultyAvatar.innerHTML = '<img src="' + photoUrl + '" alt="' + user.name + '" onerror="this.remove();this.parentElement.textContent=\'' + fallbackInitials + '\';">';
+        }
+      } else {
+        if (els.studentGreetingName) els.studentGreetingName.textContent = greeting + ", " + shortName;
+        if (els.studentAvatar) {
+          els.studentAvatar.innerHTML = '<img src="' + photoUrl + '" alt="' + user.name + '" onerror="this.remove();this.parentElement.textContent=\'' + fallbackInitials + '\';">';
+        }
+      }
+    }
+
+    function switchTab(app, tabId, clickedButton) {
+      const root = app === "student" ? els.studentApp : els.facultyApp;
+      root.querySelectorAll(".tab-section").forEach((section) => section.classList.remove("active"));
+      root.querySelector("#" + tabId).classList.add("active");
+      root.querySelectorAll(".nav-item").forEach((nav) => nav.classList.remove("active"));
+      const button = clickedButton || root.querySelector(`[data-${app === "student" ? "stab" : "ftab"}="${tabId}"]`);
+      if (button) button.classList.add("active");
+    }
+
+    function renderStudent() {
+      const totalPresent = attendance.reduce((sum, item) => sum + item.present, 0);
+      const totalClasses = attendance.reduce((sum, item) => sum + item.total, 0);
+      const overall = Math.round((totalPresent / totalClasses) * 100);
+      const low = attendance.filter((item) => Math.round((item.present / item.total) * 100) < 75).length;
+
+      els.studentStats.innerHTML = [
+        stat(overall + "%", "Overall", "green"),
+        stat(low, "Low subjects", "amber"),
+        stat(totalPresent, "Attended", "")
+      ].join("");
+
+      els.studentToday.innerHTML = classes.slice(0, 4).map((item) => timetableItem(item, true)).join("");
+      els.studentTimetable.innerHTML = classes.map((item) => timetableItem(item, false)).join("");
+      els.studentAttendance.innerHTML = attendance.map((item) => attendanceItem(item)).join("");
+    }
+
+    function renderFaculty() {
+      const myClasses = facultyClasses();
+      els.facultyStats.innerHTML = [
+        stat(myClasses.length, "Today's lectures", "teal"),
+        stat(students.length, "My students", "green"),
+        stat(students.filter((student) => student.att < 75).length, "Low attendance", "amber")
+      ].join("");
+
+      els.facultyClasses.innerHTML = myClasses.map((item) => facultyClass(item)).join("");
+      els.facultyTimetable.innerHTML = myClasses.map((item) => timetableItem(item, true)).join("");
+      renderStudents();
+      els.facultyClasses.querySelectorAll("[data-class-id]").forEach((button) => {
+        button.addEventListener("click", () => openModal(Number(button.dataset.classId)));
+      });
+    }
+
+    function renderUserProfile() {
+      if (!els.studentProfileContent) return;
+
+      const user = currentUser || {
+        name: "Nayan K",
+        id: "1BM22CS045",
+        email: "nayan.k@college.edu.in",
+        phone: "+91 98765 43210",
+        address: "Bengaluru, Karnataka",
+        photo: "https://i.pravatar.cc/180?u=nayan-k-student",
+        student: {
+          department: "Computer Science & Engineering",
+          section: "Sem 2 / B",
+          guardianName: "Kiran Kumar",
+          guardianPhone: "+91 99887 77665"
+        }
+      };
+
+      const stu = user.student || {};
+
+      els.studentProfileContent.innerHTML = `
+        <div class="profile-card profile-hero">
+          <div class="profile-big-av"><img class="profile-pic" src="${user.photo || 'https://i.pravatar.cc/180?u=' + encodeURIComponent(user.name)}" alt="${user.name}" onerror="this.remove();this.parentElement.textContent='${initials(user.name)}';"></div>
+          <div class="profile-name">${user.name}</div>
+          <div class="profile-meta">${user.id} · ${stu.section || 'N/A'}</div>
+          <div class="profile-meta">${stu.department || 'N/A'}</div>
+        </div>
+        <div class="profile-section-title">Academic Info</div>
+        <div class="profile-card">
+          <div class="profile-row"><span class="profile-row-label">Roll No</span><span class="profile-row-val">${user.id}</span></div>
+          <div class="profile-row"><span class="profile-row-label">Department</span><span class="profile-row-val">${stu.department || 'N/A'}</span></div>
+          <div class="profile-row"><span class="profile-row-label">Section</span><span class="profile-row-val">${stu.section || 'N/A'}</span></div>
+          <div class="profile-row"><span class="profile-row-label">College email</span><span class="profile-row-val">${user.email}</span></div>
+          <div class="profile-row"><span class="profile-row-label">Advisor</span><span class="profile-row-val">Prof. S. Reddy</span></div>
+        </div>
+        <div class="profile-section-title">Personal Details</div>
+        <div class="profile-card">
+          <div class="profile-row"><span class="profile-row-label">Phone</span><span class="profile-row-val">${user.phone}</span></div>
+          <div class="profile-row"><span class="profile-row-label">Address</span><span class="profile-row-val">${user.address}</span></div>
+        </div>
+        <div class="profile-section-title">Parent / Guardian</div>
+        <div class="profile-card">
+          <div class="profile-row"><span class="profile-row-label">Name</span><span class="profile-row-val">${stu.guardianName || 'N/A'}</span></div>
+          <div class="profile-row"><span class="profile-row-label">Emergency</span><span class="profile-row-val">${stu.guardianPhone || 'N/A'}</span></div>
+        </div>
+      `;
+    }
+
+    function facultyClasses() {
+      return classes.filter((item) => item.faculty === facultyName);
+    }
+
+    function renderStudents() {
+      const query = els.studentSearch.value.trim().toLowerCase();
+      const filtered = students.filter((student) => student.name.toLowerCase().includes(query) || student.roll.toLowerCase().includes(query));
+      els.facultyStudents.innerHTML = filtered.map((student) => {
+        const color = attColor(student.att);
+        return `<div class="stu-card">
+          <div class="stu-av">${initials(student.name)}</div>
+          <div class="stu-card-info">
+            <div class="stu-card-name">${student.name}</div>
+            <div class="stu-card-meta">${student.roll}</div>
+          </div>
+          <div class="stu-card-pct" style="color:var(--${color === "good" ? "green" : color === "warn" ? "amber" : "red"})">${student.att}%</div>
+        </div>`;
+      }).join("");
+    }
+
+    function stat(value, label, color) {
+      return `<div class="stat-card"><div class="stat-val ${color}">${value}</div><div class="stat-label">${label}</div></div>`;
+    }
+
+    function timetableItem(item, showStatus) {
+      const live = showStatus && isClassLive(item);
+      const marked = isMarked(item.id);
+      const open = showStatus && isAttendanceOpen(item);
+      const badgeClass = marked ? "done" : live ? "live" : open ? "live" : item.type === "lab" ? "lab" : "theory";
+      const badgeText = marked ? "Marked" : live ? "Ongoing" : open ? "Open" : item.type === "lab" ? "Lab" : "Theory";
+      return `<div class="tt-item ${live ? "ongoing" : ""}">
+        <div class="tt-time-col">
+          <div class="tt-time">${item.start}</div>
+          <div class="tt-range">${item.start}-${item.end}</div>
+        </div>
+        <div class="tt-divider"></div>
+        <div class="tt-info">
+          <div class="tt-sub">${item.subject}</div>
+          <div class="tt-faculty">${item.faculty}</div>
+          <div class="tt-room">Room ${item.room} · ${item.floor}</div>
+        </div>
+        <span class="pill ${badgeClass}">${badgeText}</span>
+      </div>`;
+    }
+
+    function attendanceItem(item) {
+      const pct = Math.round((item.present / item.total) * 100);
+      const color = attColor(pct);
+      return `<div class="att-item">
+        <div class="att-icon ${color}">${item.icon}</div>
+        <div class="att-info">
+          <div class="att-sub">${item.sub}</div>
+          <div class="att-code">${item.code} · ${item.present}/${item.total} classes</div>
+          <div class="prog-bar"><div class="prog-fill ${color}" style="width:${pct}%"></div></div>
+        </div>
+        <div class="att-right">
+          <div class="att-pct ${color}">${pct}%</div>
+          <div class="att-classes">${item.total - item.present} absent</div>
+        </div>
+      </div>`;
+    }
+
+    function facultyClass(item) {
+      const live = isClassLive(item);
+      const marked = isMarked(item.id);
+      const open = isAttendanceOpen(item);
+      const upcoming = isClassUpcoming(item);
+      const isLocked = !open || marked;
+      const label = marked
+        ? "Attendance Marked"
+        : open
+          ? "Mark Attendance"
+          : upcoming
+            ? "Opens After Start"
+            : "Closed";
+      const status = marked ? "Marked" : live ? "Live Now" : open ? "Open Till Midnight" : "Upcoming";
+      return `<div class="fac-class-card">
+        <div class="fac-class-top">
+          <div class="fac-class-icon">B</div>
+          <div class="fac-class-info">
+            <div class="fac-class-name">${item.subject}</div>
+            <div class="fac-class-meta">${item.start}-${item.end} · Room ${item.room} · ${item.floor}</div>
+          </div>
+          <span class="pill ${open && !marked ? "live" : "done"}">${status}</span>
+        </div>
+        <button class="mark-att-btn ${isLocked ? "locked" : ""}" type="button" data-class-id="${item.id}">${label}</button>
+      </div>`;
+    }
+
+    function openModal(classId) {
+      const item = classes.find((entry) => entry.id === classId);
+      if (isMarked(classId)) {
+        showToast("Attendance is already marked and locked");
+        return;
+      }
+      if (!isAttendanceOpen(item)) {
+        showToast("Attendance opens after class starts");
+        return;
+      }
+      activeClassId = classId;
+      els.modalTitle.textContent = "Mark Attendance - " + item.subject;
+      els.modalSub.textContent = `${item.start}-${item.end} · Room ${item.room} · Section B`;
+      els.modalStudents.innerHTML = students.map((student, index) => `<div class="student-att-row">
+        <div class="stu-av">${initials(student.name)}</div>
+        <div style="flex:1"><div class="stu-name">${student.name}</div><div class="stu-roll">${student.roll}</div></div>
+        <div class="att-toggle">
+          <button class="att-toggle-btn present sel" type="button" data-present="${index}">P</button>
+          <button class="att-toggle-btn absent" type="button" data-absent="${index}">A</button>
+        </div>
+      </div>`).join("");
+      els.modalStudents.querySelectorAll(".att-toggle-btn").forEach((button) => {
+        button.addEventListener("click", () => {
+          const group = button.parentElement;
+          group.querySelectorAll(".att-toggle-btn").forEach((item) => item.classList.remove("sel"));
+          button.classList.add("sel");
+        });
+      });
+      els.attendanceModal.classList.add("active");
+    }
+
+    function closeModal() {
+      els.attendanceModal.classList.remove("active");
+      activeClassId = null;
+    }
+
+    function punch() {
+      const time = new Date().toTimeString().slice(0, 5);
+      if (punchState === 0) {
+        punchState = 1;
+        els.punchInTime.textContent = time;
+        els.punchInTime.classList.add("green");
+        els.punchInBox.classList.add("in");
+        els.punchButton.textContent = "Punch Out";
+        els.punchButton.classList.add("out");
+      } else if (punchState === 1) {
+        punchState = 2;
+        els.punchOutTime.textContent = time;
+        els.punchOutTime.classList.add("red");
+        els.punchOutBox.classList.add("out");
+        els.punchButton.textContent = "Punched Out at " + time;
+        els.punchButton.disabled = true;
+      }
+    }
+
+    function updateClock() {
+      const now = new Date();
+      const time = now.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+      els.studentClock.textContent = time;
+      els.facultyClock.textContent = time;
+      els.facultyDate.textContent = now.toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short", year: "numeric" });
+      if (els.facultyApp.classList.contains("active")) renderFaculty();
+    }
+
+    function todayDate() {
+      return new Date().toISOString().slice(0, 10);
+    }
+
+    function todayKey(classId) {
+      return `${todayDate()}-${classId}`;
+    }
+
+    function isMarked(classId) {
+      return Boolean(markedSessions[todayKey(classId)]);
+    }
+
+    function timeToMinutes(time) {
+      const [hours, minutes] = time.split(":").map(Number);
+      return hours * 60 + minutes;
+    }
+
+    function nowMinutes() {
+      const now = new Date();
+      return now.getHours() * 60 + now.getMinutes();
+    }
+
+    function isClassLive(item) {
+      const now = nowMinutes();
+      return now >= timeToMinutes(item.start) && now < timeToMinutes(item.end);
+    }
+
+    function isClassEnded(item) {
+      return nowMinutes() >= timeToMinutes(item.end);
+    }
+
+    function isClassUpcoming(item) {
+      return nowMinutes() < timeToMinutes(item.start);
+    }
+
+    function isAttendanceOpen(item) {
+      return nowMinutes() >= timeToMinutes(item.start);
+    }
+
+    function loadMarkedSessions() {
+      try {
+        return JSON.parse(localStorage.getItem(markedStorageKey)) || {};
+      } catch (error) {
+        return {};
+      }
+    }
+
+    function saveMarkedSessions() {
+      localStorage.setItem(markedStorageKey, JSON.stringify(markedSessions));
+    }
+    
+    function attColor(percent) {
+      if (percent >= 75) return "good";
+      if (percent >= 65) return "warn";
+      return "low";
+    }
+
+    function initials(name) {
+      return name.split(" ").map((part) => part[0]).join("").slice(0, 2).toUpperCase();
+    }
+
+    function showToast(message) {
+      els.toast.textContent = message;
+      els.toast.classList.add("show");
+      window.clearTimeout(showToast.timer);
+      showToast.timer = window.setTimeout(() => els.toast.classList.remove("show"), 2200);
+    }
+
+    async function handleSaveAttendance() {
+      if (activeClassId === null) return;
+
+      const classItem = classes.find((c) => c.id === activeClassId);
+      const rows = els.modalStudents.querySelectorAll(".student-att-row");
+      const presentList = [];
+      const absentList = [];
+
+      rows.forEach((row, index) => {
+        const isAbsent = row.querySelector(".att-toggle-btn.absent.sel");
+        if (isAbsent) {
+          absentList.push(students[index]);
+        } else {
+          presentList.push(students[index]);
+        }
+      });
+
+      const record = {
+        classId: activeClassId,
+        subject: classItem.subject,
+        code: classItem.code,
+        date: todayDate(),
+        time: classItem.start + "-" + classItem.end,
+        faculty: facultyName,
+        totalStudents: students.length,
+        presentCount: presentList.length,
+        absentCount: absentList.length,
+        presentRolls: presentList.map((s) => s.roll),
+        absentRolls: absentList.map((s) => s.roll),
+        savedAt: new Date().toISOString()
+      };
+
+      try {
+        await saveAttendanceRecord(record);
+      } catch (err) {
+        console.error("Failed to save attendance record:", err);
+      }
+
+      const shouldNotifyParents = els.notifyParents.checked;
+      const now = new Date().toISOString();
+
+      for (const student of absentList) {
+        try {
+          await saveNotification({
+            type: "absent",
+            targetId: student.roll,
+            targetRole: "student",
+            title: "Absent: " + classItem.subject,
+            message: "You were marked absent in " + classItem.subject + " (" + classItem.start + "-" + classItem.end + ") by " + facultyName + ".",
+            date: todayDate(),
+            createdAt: now
+          });
+        } catch (err) {
+          console.error("Failed to save student notification:", err);
+        }
+
+        if (shouldNotifyParents) {
+          try {
+            await saveNotification({
+              type: "parent",
+              targetId: student.roll + "-parent",
+              targetRole: "guardian",
+              title: "Absence Alert: " + student.name,
+              message: student.name + " (" + student.roll + ") was absent in " + classItem.subject + " on " + todayDate() + ". Faculty: " + facultyName + ".",
+              studentName: student.name,
+              studentRoll: student.roll,
+              date: todayDate(),
+              createdAt: now
+            });
+          } catch (err) {
+            console.error("Failed to save parent notification:", err);
+          }
+        }
+      }
+
+      try {
+        await saveNotification({
+          type: "info",
+          targetId: "FAC2019018",
+          targetRole: "faculty",
+          title: "Attendance Saved: " + classItem.subject,
+          message: presentList.length + " present, " + absentList.length + " absent." + (shouldNotifyParents && absentList.length > 0 ? " Parent alerts sent for " + absentList.length + " student(s)." : ""),
+          date: todayDate(),
+          createdAt: now
+        });
+      } catch (err) {
+        console.error("Failed to save faculty notification:", err);
+      }
+
+      markedSessions[todayKey(activeClassId)] = {
+        classId: activeClassId,
+        markedAt: now
+      };
+      saveMarkedSessions();
+
+      closeModal();
+      renderFaculty();
+
+      const msg = absentList.length > 0
+        ? "Attendance saved — " + absentList.length + " absent" + (shouldNotifyParents ? ", parents notified" : "")
+        : "Attendance saved — all present!";
+      showToast(msg);
+
+      updateNotifDot("faculty", "FAC2019018");
+    }
+
+    async function toggleNotifPanel(role) {
+      const panel = role === "student" ? els.studentNotifPanel : els.facultyNotifPanel;
+      const isOpen = panel.classList.contains("active");
+
+      els.studentNotifPanel.classList.remove("active");
+      els.facultyNotifPanel.classList.remove("active");
+
+      if (!isOpen) {
+        panel.classList.add("active");
+        const identifier = role === "student" ? "1BM22CS045" : "FAC2019018";
+        await renderNotifications(role, identifier);
+      }
+    }
+
+    async function renderNotifications(role, identifier) {
+      const list = role === "student" ? els.studentNotifList : els.facultyNotifList;
+
+      try {
+        const notifs = await loadNotifications(role, identifier);
+        if (notifs.length === 0) {
+          list.innerHTML = '<div class="notif-empty">No notifications yet</div>';
+          return;
+        }
+
+        list.innerHTML = notifs.slice(0, 20).map((n) => {
+          const iconClass = n.type === "absent" ? "absent" : n.type === "parent" ? "parent" : "info";
+          const iconLetter = n.type === "absent" ? "A" : n.type === "parent" ? "P" : "i";
+          return '<div class="notif-item">' +
+            '<div class="notif-item-icon ' + iconClass + '">' + iconLetter + '</div>' +
+            '<div><div class="notif-item-text">' + n.message + '</div>' +
+            '<div class="notif-item-time">' + timeAgo(n.createdAt) + '</div></div>' +
+            '</div>';
+        }).join("");
+      } catch (err) {
+        console.error("Failed to load notifications:", err);
+        list.innerHTML = '<div class="notif-empty">Failed to load notifications</div>';
+      }
+    }
+
+    async function handleClearNotifs(role) {
+      const identifier = role === "student" ? "1BM22CS045" : "FAC2019018";
+      const list = role === "student" ? els.studentNotifList : els.facultyNotifList;
+      const dot = role === "student" ? els.studentNotifDot : els.facultyNotifDot;
+
+      try {
+        await clearNotifications(role, identifier);
+        list.innerHTML = '<div class="notif-empty">No notifications yet</div>';
+        dot.classList.remove("active");
+        showToast("Notifications cleared");
+      } catch (err) {
+        console.error("Failed to clear notifications:", err);
+      }
+    }
+
+    async function updateNotifDot(role, identifier) {
+      try {
+        const notifs = await loadNotifications(role, identifier);
+        const dot = role === "student" ? els.studentNotifDot : els.facultyNotifDot;
+        dot.classList.toggle("active", notifs.length > 0);
+      } catch (err) {
+      }
+    }
+
+    function timeAgo(dateStr) {
+      const now = Date.now();
+      const then = new Date(dateStr).getTime();
+      const diff = Math.floor((now - then) / 1000);
+      if (diff < 60) return "Just now";
+      if (diff < 3600) return Math.floor(diff / 60) + "m ago";
+      if (diff < 86400) return Math.floor(diff / 3600) + "h ago";
+      return Math.floor(diff / 86400) + "d ago";
+    }
+  </script>
+</body>
+</html>
